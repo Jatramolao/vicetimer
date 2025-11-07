@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ViceTimer - Cuenta Regresiva GTA VI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto+Condensed:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto Condensed', sans-serif;
+            background: #0a0a0a;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Efecto de fondo estilo Vice City */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at top, rgba(255, 0, 128, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom, rgba(0, 255, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Grid de fondo estilo retro */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 1200px;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #ff0080 0%, #ff8c00 50%, #00ffff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 8px;
+            text-shadow: 0 0 30px rgba(255, 0, 128, 0.5);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from {
+                filter: drop-shadow(0 0 10px rgba(255, 0, 128, 0.5));
+            }
+            to {
+                filter: drop-shadow(0 0 25px rgba(255, 0, 128, 0.8));
+            }
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 3rem;
+            color: #00ffff;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            font-weight: 300;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 2.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 3rem;
+        }
+
+        .time-unit {
+            background: rgba(10, 10, 10, 0.8);
+            border: 2px solid #ff0080;
+            border-radius: 10px;
+            padding: 2.5rem 2rem;
+            min-width: 160px;
+            position: relative;
+            box-shadow: 
+                0 0 20px rgba(255, 0, 128, 0.3),
+                inset 0 0 20px rgba(255, 0, 128, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .time-unit::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, #ff0080, #00ffff);
+            border-radius: 10px;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .time-unit:hover {
+            transform: translateY(-5px);
+            box-shadow: 
+                0 0 40px rgba(255, 0, 128, 0.6),
+                inset 0 0 20px rgba(255, 0, 128, 0.2);
+        }
+
+        .time-unit:hover::before {
+            opacity: 0.5;
+        }
+
+        .time-value {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 5rem;
+            font-weight: bold;
+            display: block;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #ff0080 0%, #00ffff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 20px rgba(255, 0, 128, 0.5);
+            line-height: 1;
+        }
+
+        .time-label {
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #00ffff;
+            font-weight: 300;
+        }
+
+        .release-info {
+            background: rgba(10, 10, 10, 0.8);
+            border: 2px solid #00ffff;
+            padding: 1.5rem 3rem;
+            border-radius: 50px;
+            display: inline-block;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            margin-bottom: 3rem;
+        }
+
+        .release-date {
+            font-size: 1.3rem;
+            color: #00ffff;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .release-date strong {
+            color: #ff0080;
+            font-weight: 700;
+            margin-left: 10px;
+        }
+
+        /* Espacio para ads con estilo neon */
+        .ad-space {
+            background: rgba(10, 10, 10, 0.6);
+            border: 2px dashed rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ad-space-top {
+            margin-bottom: 3rem;
+        }
+
+        .ad-space-bottom {
+            margin-top: 4rem;
+        }
+
+        .ad-space::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 255, 255, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .ad-placeholder {
+            color: rgba(0, 255, 255, 0.5);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Footer */
+        .footer {
+            position: relative;
+            z-index: 1;
+            margin-top: 4rem;
+            padding: 2rem 1rem;
+            border-top: 1px solid rgba(0, 255, 255, 0.2);
+            text-align: center;
+        }
+
+        .footer-text {
+            color: #00ffff;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+            font-weight: 400;
+        }
+
+        .footer-disclaimer {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            font-weight: 300;
+        }
+
+        /* Efectos de partículas */
+        .particle {
+            position: fixed;
+            width: 2px;
+            height: 2px;
+            background: #ff0080;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 10s infinite;
+            opacity: 0.3;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10%, 90% {
+                opacity: 0.3;
+            }
+            50% {
+                transform: translateY(-100vh) translateX(50px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 3rem;
+                letter-spacing: 4px;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+                letter-spacing: 2px;
+            }
+
+            .time-unit {
+                min-width: 120px;
+                padding: 2rem 1.5rem;
+            }
+
+            .time-value {
+                font-size: 3.5rem;
+            }
+
+            .countdown {
+                gap: 1.5rem;
+            }
+
+            .release-date {
+                font-size: 1rem;
+            }
+
+            .ad-space {
+                padding: 2rem;
+            }
+
+            .footer {
+                margin-top: 3rem;
+                padding: 1.5rem 1rem;
+            }
+
+            .footer-text {
+                font-size: 0.8rem;
+            }
+
+            .footer-disclaimer {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Partículas decorativas -->
+    <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+    <div class="particle" style="left: 30%; animation-delay: 2s;"></div>
+    <div class="particle" style="left: 50%; animation-delay: 4s;"></div>
+    <div class="particle" style="left: 70%; animation-delay: 6s;"></div>
+    <div class="particle" style="left: 90%; animation-delay: 8s;"></div>
+
+    <div class="container">
+        <h1 class="logo">VICETIMER</h1>
+        <p class="subtitle">Cuenta Regresiva Oficial</p>
+        
+        <div class="countdown" id="countdown">
+            <div class="time-unit">
+                <span class="time-value" id="days">0</span>
+                <span class="time-label">Días</span>
+            </div>
+            <div class="time-unit">
+                <span class="time-value" id="hours">0</span>
+                <span class="time-label">Horas</span>
+            </div>
+            <div class="time-unit">
+                <span class="time-value" id="minutes">0</span>
+                <span class="time-label">Minutos</span>
+            </div>
+            <div class="time-unit">
+                <span class="time-value" id="seconds">0</span>
+                <span class="time-label">Segundos</span>
+            </div>
+        </div>
+
+        <div class="release-info">
+            <p class="release-date">🌴 FECHA DE LANZAMIENTO:<strong>19 DE NOVIEMBRE 2026</strong></p>
+        </div>
+
+        <!-- Espacio publicitario superior -->
+        <div class="ad-space ad-space-top">
+            <p class="ad-placeholder">[ Espacio Publicitario - 728x90 ]</p>
+        </div>
+
+        <!-- Espacio publicitario inferior -->
+        <div class="ad-space ad-space-bottom">
+            <p class="ad-placeholder">[ Espacio Publicitario - 300x250 ]</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p class="footer-text">© 2024 ViceTimer. Todos los derechos reservados.</p>
+        <p class="footer-disclaimer">Este sitio no está afiliado con Rockstar Games. Es un contador creado por fans.</p>
+    </footer>
+
+    <script>
+        // Fecha de lanzamiento: 19 de noviembre de 2026
+        const releaseDate = new Date('2026-11-19T00:00:00').getTime();
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = releaseDate - now;
+
+            if (distance < 0) {
+                document.getElementById('countdown').innerHTML = '<div class="time-unit"><span class="time-value" style="font-size: 3rem;">¡YA DISPONIBLE!</span></div>';
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('days').textContent = days;
+            document.getElementById('hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('seconds').textContent = seconds.toString().padStart(2, '0');
+        }
+
+        // Actualizar cada segundo
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+
+        // Crear más partículas dinámicamente
+        function createParticles() {
+            for (let i = 0; i < 10; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 10 + 's';
+                particle.style.background = i % 2 === 0 ? '#ff0080' : '#00ffff';
+                document.body.appendChild(particle);
+            }
+        }
+
+        createParticles();
+    </script>
+</body>
+</html>
